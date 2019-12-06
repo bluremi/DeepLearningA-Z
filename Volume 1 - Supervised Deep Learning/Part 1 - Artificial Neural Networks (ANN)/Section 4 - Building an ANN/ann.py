@@ -43,8 +43,9 @@ X_train = sc.fit_transform(X_train)
 # We call transform instead of fit_transform because we already fit the scaler to the training dataset
 X_test = sc.transform(X_test)
 
-
-
+""" This just verifies that GPU is being used by tensorflow"""
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 
 
 """ Part 2 - Making the Artifical Neural Network """
@@ -67,9 +68,7 @@ classifier.add(Dense(units = 1, activation = 'sigmoid', kernel_initializer = 'gl
 classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
 # Fit the ANN to the training set
-classifier.fit(x = X_train, y = y_train, batch_size = 100, epochs = 50)
-
-
+classifier.fit(x = X_train, y = y_train, batch_size = 10, epochs = 100)
 
 
 
@@ -132,8 +131,10 @@ def build_classifier():
     classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
 
+
 # create a classifier that's wrapped in the KerasClassifier so that we can use the cross_val_score function to evaluate
-classifier = KerasClassifier(build_fn = build_classifier(), batch_size = 10, nb_epoch = 100)
-accuracies = cross_val_score()
+# The first argument of the function is itself a function, which returns a classifier
+classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epochs = 100)
+accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 2)
 
 
