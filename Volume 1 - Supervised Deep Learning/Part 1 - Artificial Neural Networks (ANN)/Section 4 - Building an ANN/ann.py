@@ -54,6 +54,7 @@ print(device_lib.list_local_devices())
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
 
 # Initialize the ANN by defining it as a sequence of layers
 classifier = Sequential()
@@ -126,7 +127,9 @@ from sklearn.model_selection import cross_val_score
 def build_classifier():
     classifier = Sequential()
     classifier.add(Dense(units = 6, activation = 'relu', kernel_initializer = 'glorot_uniform'))
+    # classifer.add(Dropout(rate = 0.1))
     classifier.add(Dense(units = 6, activation = 'relu', kernel_initializer = 'glorot_uniform'))
+    # classifier.add(Dropout(rate = 0.1))
     classifier.add(Dense(units = 1, activation = 'sigmoid', kernel_initializer = 'glorot_uniform'))
     classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
@@ -138,4 +141,37 @@ classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epoch
 accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = -1)
 mean = accuracies.mean()
 variance = accuracies.std()
+
+
+#Tuning the AN using Grid Search
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+from keras.models import Sequential
+from keras.layers import Dense
+def build_classifier(optimizer): #pass parameter(s) from the params dictionary to test
+    classifier = Sequential()
+    classifier.add(Dense(units = 6, activation = 'relu', kernel_initializer = 'glorot_uniform'))
+    classifier.add(Dense(units = 6, activation = 'relu', kernel_initializer = 'glorot_uniform'))
+    classifier.add(Dense(units = 1, activation = 'sigmoid', kernel_initializer = 'glorot_uniform'))
+    classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
+    return classifier
+classifier = KerasClassifier(build_fn = build_classifier)
+#create a dictionary with the parameters we want to optimize
+parameters = {'batch_size': [25, 32], 
+              'epochs': [100, 200],
+              'optimizer': ['adam', 'rmsprop']}
+grid_search_tuner = GridSearchCV(estimator = classifier,
+                        param_grid = parameters,
+                        scoring = 'accuracy',
+                        cv = 10)
+grid_search_tuner = grid_search_tuner.fit(X_train, y_train)
+#Extract the test results
+best_parameters = grid_search_tuner.best_params_
+best_accuracy = grid_search_tuner.best_score_
+
+
+
+
+
+
 
