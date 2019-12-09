@@ -135,6 +135,7 @@ def build_classifier():
 # create a classifier that's wrapped in the KerasClassifier so that we can use the cross_val_score function to evaluate
 # The first argument of the function is itself a function, which returns a classifier
 classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epochs = 100)
-accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 2)
-
+accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = -1)
+mean = accuracies.mean()
+variance = accuracies.std()
 
