@@ -60,9 +60,19 @@ test_set = test_datagen.flow_from_directory('dataset/test_set',
 
 classifier.fit_generator(generator = training_set,
                          steps_per_epoch = 8000,
-                         epochs = 25,
+                         epochs = 1,
                          validation_data = test_set,
                          validation_steps = 2000)
+
+
+""" HOMEWORK - Make new predictions based on sample data """
+predict_datagen = ImageDataGenerator(rescale = 1./255)
+
+predict_set = predict_datagen.flow_from_directory('dataset/single_prediction',
+                                                  target_size = (64, 64),
+                                                  class_mode = 'binary')
+
+classifier.predict_generator(generator = predict_set)
 
 
 
