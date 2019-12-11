@@ -66,13 +66,33 @@ classifier.fit_generator(generator = training_set,
 
 
 """ HOMEWORK - Make new predictions based on sample data """
-predict_datagen = ImageDataGenerator(rescale = 1./255)
+from PIL import Image
+import numpy as np
+from skimage import transform
+from keras.preprocessing import image
 
-predict_set = predict_datagen.flow_from_directory('dataset/single_prediction',
-                                                  target_size = (64, 64),
-                                                  class_mode = 'binary')
+imgpath = 'dataset/single_prediction/cat_or_dog_'
+img1 = imgpath + '1.jpg'
+img2 = imgpath + '2.jpg'
 
-classifier.predict_generator(generator = predict_set)
+def prediction(imgPath):
+    img = image.load_img(path = imgPath, target_size = (64, 64))
+    img = image.img_to_array(img = img, data_format = 'channels_last', dtype = 'float32')/255
+    # Conv2D expects an input array with 4 dimensions: (batch#, height, width, channels)
+    img = np.expand_dims(img, axis = 0) #adding an empty dimension to the array since there are no batches
+    result = classifier.predict(img)
+    if result > 0.5:
+        prediction = 'dog'
+    else:
+        prediction = 'cat'
+    output = prediction + '(' + str(result) + ')'
+    return output
+
+training_set.class_indices #what does 0/1 represent in the output results?
+
+prediction(img1)
+prediction(img2)
+
 
 
 
